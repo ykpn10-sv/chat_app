@@ -1,0 +1,140 @@
+<html>
+<head>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+</head>
+<body>
+
+    <style>
+        .mes_area {
+            border:solid 1px #000;
+            width:100%;
+            min-height:500px;
+            background-color: #d9d9d9;
+        }
+       .mes_area2 {
+            border:solid 1px #000;
+            width:100%;
+            min-height:500px;
+            background-color: #f2fadb;
+        }
+    </style>
+
+    <div>
+        <label for="name">名前</label>
+        <input type="text" id="name">
+    </div>
+
+    <textarea name="" id="chat" cols="50" rows="10"></textarea>
+    <input type="submit" id="enter_chat" value="送信">
+    <input type="submit" id="clear_chat" value="ログ削除">
+    <hr />
+
+    <div class="mes_area" style="">メッセージ</div>
+
+    <script>
+    $(function() {
+
+        // 過去ログあるかもしれないから出力
+        output_chat_area();
+
+        // 過去ログ表示の処理
+        function output_chat_area() {
+
+            // mes_areaを初期化
+            $(".mes_area").empty();
+
+            // 保存されたログを取得し、chat_datasへ代入
+            chat_datas = localStorage.getItem("chat_datas");
+            chat_datas = JSON.parse(chat_datas);
+            
+            // chat_datasが空じゃなければ新しい順で表示        
+            if (chat_datas !== null){
+                chat_datas.reverse();
+            }
+
+            // 過去ログデータをforeachで一行ずつ取り出す
+            $.each(chat_datas, function(index, value) {
+                // console.log($this);
+                console.log(this);
+                    $(".mes_area").append(
+                        "<p>[" + this.sender + "] " + this.mes + "  " + this.time + "</p>"
+                    );    
+            });
+
+        }
+
+
+        // 他のタブでstorageが更新されたときの処理
+        window.addEventListener("storage", function(event){
+
+            // localstorageが更新されたら過去ログを出力
+            if (event.key === "chat_datas") {
+                output_chat_area();
+            }
+
+        });
+
+
+        // 入力された名前、メッセージの保存処理
+        $("#enter_chat").click(function() {
+
+            // 送信者の名前を取得
+            sender = $("#name").val();
+
+            // 入力されたテキストを取得
+            mes = $("#chat").val();
+
+            // 日時を取得
+            now = new Date();
+            time = now.getFullYear() + '/' + 
+                ('0' + (now.getMonth() + 1)).slice(-2) + '/' +
+                ('0' + now.getDate()).slice(-2) + ' ' +  
+                ('0' + now.getHours()).slice(-2) + ':' + 
+                ('0' + now.getMinutes()).slice(-2);
+
+            // 空文字の送信をさせないようにする
+            if (mes === "") return;
+
+            // 保存したデータを取り出す
+            chat_datas = localStorage.getItem("chat_datas");
+
+            // chat_datasがあれば
+            if(chat_datas == null) {
+                chat_datas = [];
+            } else {
+                chat_datas = JSON.parse(chat_datas);
+            }
+
+            // localStorageに配列を作成
+            new_chat_data = {
+                "sender" : sender,
+                "mes" : mes,
+                "time" : time,
+            };
+
+            // 入力した新しいデータをlocalStorageに保存
+            chat_datas.push(new_chat_data);
+            chat_datas = JSON.stringify(chat_datas);
+            localStorage.setItem("chat_datas",chat_datas);
+
+            // テキストエリアを空にする
+            textForm = document.getElementById("chat");
+            textForm.value = "";
+
+            output_chat_area();
+            
+        });
+
+        // ログ削除の処理
+        $("#clear_chat").click(function() {
+            alert('ログを削除しました');
+            localStorage.clear();
+        });
+ 
+
+    });
+
+    </script>
+    
+</body>
+</html>
