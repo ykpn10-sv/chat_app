@@ -1,0 +1,169 @@
+<html>
+<head>
+
+<!-- Firebaseライブラリを読み込む バージョンは2.3.2という古いのを使っています -->
+<script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+
+<!-- Firebase SDKの追加 -->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDHXb1OLB71cwn2bcRKAwSOU7Rffvs7fno",
+    authDomain: "chat-app-80246.firebaseapp.com",
+    projectId: "chat-app-80246",
+    storageBucket: "chat-app-80246.firebasestorage.app",
+    messagingSenderId: "765415670394",
+    appId: "1:765415670394:web:6bc8d3a4c4e83ca3bbf1c3",
+    measurementId: "G-1G30H9F9BJ"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
+</head>
+<body>
+
+    <style>
+        .mes_area {
+            border:solid 1px #000;
+            width:100%;
+            min-height:500px;
+            background-color: #d9d9d9;
+        }
+       .mes_area2 {
+            border:solid 1px #000;
+            width:100%;
+            min-height:500px;
+            background-color: #f2fadb;
+        }
+    </style>
+
+    <div>
+        <label for="name">名前</label>
+        <input type="text" id="name">
+    </div>
+
+    <textarea name="" id="chat" cols="50" rows="10"></textarea>
+    <input type="submit" id="enter_chat" value="送信">
+    <input type="submit" id="clear_chat" value="ログ削除">
+    <hr />
+
+    <div class="mes_area" style="">メッセージ</div>
+    
+
+    <script>
+    $(function() {
+        
+        
+        // データベースに接続する
+        database = new Firebase("https://chat-app-80246-default-rtdb.firebaseio.com/");
+
+
+        // データを取得する
+        database.child("chat_datas").on('child_added', function(snapshot) {
+            console.log("テストテストテスト", snapshot.val());
+            deta = snapshot.val();
+                $(".mes_area").append(
+                        "<p>[" + deta.sender + "] " + deta.mes + "  " + deta.time + "</p>"
+                    );    
+            
+        });
+
+
+        $("#enter_chat").click(function() {
+
+            // 送信者の名前を取得
+            sender = $("#name").val();
+
+            // 入力されたテキストを取得
+            mes = $("#chat").val();
+
+            // 日時を取得
+            now = new Date();
+            time = now.getFullYear() + '/' + 
+                ('0' + (now.getMonth() + 1)).slice(-2) + '/' +
+                ('0' + now.getDate()).slice(-2) + ' ' +  
+                ('0' + now.getHours()).slice(-2) + ':' + 
+                ('0' + now.getMinutes()).slice(-2);
+
+            // 空文字の送信をさせないようにする
+            // if (mes === "") return;
+
+
+            // データを追加する
+            database.child("chat_datas").push({
+                sender : sender, 
+                mes : mes,
+                time : time
+            });
+
+
+            console.log("テストテストテスト");
+
+        });
+
+
+        // // 入力された名前、メッセージの保存処理
+        // $("#enter_chat").click(function() {
+
+        //     // 送信者の名前を取得
+        //     sender = $("#name").val();
+
+        //     // 入力されたテキストを取得
+        //     mes = $("#chat").val();
+
+        //     // 日時を取得
+        //     now = new Date();
+        //     time = now.getFullYear() + '/' + 
+        //         ('0' + (now.getMonth() + 1)).slice(-2) + '/' +
+        //         ('0' + now.getDate()).slice(-2) + ' ' +  
+        //         ('0' + now.getHours()).slice(-2) + ':' + 
+        //         ('0' + now.getMinutes()).slice(-2);
+
+        //     // 空文字の送信をさせないようにする
+        //     if (mes === "") return;
+
+        //     // localStorageに配列を作成
+        //     new_chat_data = {
+        //         "sender" : sender,
+        //         "mes" : mes,
+        //         "time" : time,
+        //     };
+
+
+        //     // 入力した新しいデータをlocalStorageに保存
+        //     database.child("chat_datas").push(new_chat_data);
+
+
+        //     // 保存されたログを取得し、表示する
+        //     database.child("chat_datas").on('child_added', function(snapshot) {
+        //         deta = snapshot.val();
+        //         $(".mes_area").append(
+        //                 "<p>[" + deta.sender + "] " + deta.mes + "  " + deta.time + "</p>"
+        //             );    
+        //     });
+
+
+            
+        // });
+
+        // ログ削除の処理
+ 
+
+    });
+
+    </script>
+    
+</body>
+</html>
